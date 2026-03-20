@@ -24,7 +24,24 @@ module fetch_stage (
     input  logic [31:0] jump_address_backwards_in
 );
 
-    // TODO: Delete the following line and implement this module.
-    ref_fetch_stage golden(.*);
+    // TODO: Delete the following lin
+   logic [31:0] pc;
 
+always_ff @(posedge clk) begin
+    if (rst)
+        pc <= 32'd0;
+    else if (status_backwards_in.valid && status_backwards_in.jump)
+        pc <= jump_address_backwards_in;
+    else
+        pc <= pc + 32'd4;
+end
+
+assign program_counter_reg_out = pc;
+
+assign wb.adr = pc;
+assign wb.cyc = 1'b1;assign wb.stb = 1'b1;
+assign wb.we  = 1'b0;
+
+assign instruction_reg_out = wb.dat_r;
 endmodule
+
