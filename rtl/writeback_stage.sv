@@ -32,6 +32,26 @@ module writeback_stage (
 );
 
     // TODO: Delete the following line and implement this module.
-    ref_writeback_stage golden(.*);
+    assign forwarding_out = '0;
+
+assign status_backwards_out = status_forwards_in;
+assign jump_address_backwards_out = 32'd0;
+
+logic write_enable;
+
+always_comb begin
+    case (instruction_in.opcode)
+        7'b0110011: write_enable = 1'b1; // R-type
+        7'b0010011: write_enable = 1'b1; // I-type
+        7'b0000011: write_enable = 1'b1; // LOAD
+        default:    write_enable = 1'b0;
+    endcase
+end
+
+assign forwarding_out.rd_data = rd_data_in;
+assign forwarding_out.rd_addr = instruction_in.rd;
+assign forwarding_out.we      = write_enable;
+
+
 
 endmodule

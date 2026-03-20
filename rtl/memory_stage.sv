@@ -39,6 +39,39 @@ module memory_stage (
 );
 
     // TODO: Delete the following line and implement this module.
-    ref_memory_stage golden(.*);
+    assign program_counter_reg_out = program_counter_in;
+assign next_program_counter_reg_out = next_program_counter_in;
+assign instruction_reg_out = instruction_in;
+assign source_data_reg_out = source_data_in;
+
+logic [31:0] mem_data;
+
+always_comb begin
+    case (instruction_in.opcode)
+
+        // LOAD (LW)
+        7'b0000011: begin
+            mem_data = wb.dat_r;
+        end
+
+        // STORE (SW)
+        7'b0100011: begin
+            mem_data = 32'd0; // nothing to write back
+        end
+
+        default: begin
+            mem_data = rd_data_in; // ALU result pass
+        end
+
+    endcase
+end
+
+assign wb.adr = rd_data_in;
+assign wb.dat_w = rs2_data_in;
+assign wb.we  = (instruction_in.opcode == 7'b0100011); // store
+assign wb.cyc = 1'b1;
+assign wb.stb = 1'b1;
+
+assign rd_data_reg_out = mem_data;
 
 endmodule
